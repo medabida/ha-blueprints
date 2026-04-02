@@ -14,17 +14,23 @@ blueprint:
           integration: mqtt
           multiple: false
 
-    action_rotate_right:
-      name: Rotate Right
-      default: []
+    target_light:
+      name: Light to Control
+      description: The light entity to brighten/dim with rotation.
       selector:
-        action: {}
+        entity:
+          domain: light
 
-    action_rotate_left:
-      name: Rotate Left
-      default: []
+    step_size:
+      name: Brightness Step Size
+      description: How much brightness to change per rotation step (%).
+      default: 10
       selector:
-        action: {}
+        number:
+          min: 10
+          max: 100
+          step: 10
+          unit_of_measurement: "%"
 
     action_single_press:
       name: Single Press
@@ -43,6 +49,9 @@ blueprint:
       default: []
       selector:
         action: {}
+
+variables:
+  step_size: !input step_size
 
 mode: restart
 max_exceeded: silent
@@ -93,12 +102,22 @@ action:
       - conditions:
           - condition: trigger
             id: "rotate_right"
-        sequence: !input action_rotate_right
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: !input target_light
+            data:
+              brightness_step_pct: "{{ step_size }}"
 
       - conditions:
           - condition: trigger
             id: "rotate_left"
-        sequence: !input action_rotate_left
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: !input target_light
+            data:
+              brightness_step_pct: "{{ -step_size }}"
 
       - conditions:
           - condition: trigger
