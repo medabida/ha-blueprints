@@ -1,18 +1,19 @@
 blueprint:
-  name: Tuya ZG-101Z/D ZHA Events
-  description: Automate Tuya Smart Knob using ZHA events.
+  name: Tuya ZG-101Z/D Z2M Events
+  description: >
+    Automate Tuya Smart Knob (TS004F / ZG-101Z) using Zigbee2MQTT via MQTT triggers.
+    Device must be paired through Zigbee2MQTT (not ZHA).
   domain: automation
   input:
     smart_knob:
       name: Smart Knob Device
-      description: Select your Tuya Smart Knob
+      description: >-
+        Select your Smart Knob as discovered by Zigbee2MQTT (MQTT integration).
       selector:
         device:
-          integration: zha
-          manufacturer: _TZ3000_gwkzibhs
-          model: TS004F
+          integration: mqtt
           multiple: false
-    
+
     action_rotate_right:
       name: Rotate Right
       default: []
@@ -47,49 +48,44 @@ mode: restart
 max_exceeded: silent
 
 trigger:
-  # --- ROTATE RIGHT (0) ---
-  - platform: event
-    event_type: zha_event
-    event_data:
-      device_id: !input smart_knob
-      params:
-        rotate_type: 0
+  # --- ROTATE RIGHT ---
+  - platform: device
+    domain: mqtt
+    device_id: !input smart_knob
+    type: action
+    subtype: rotate_right
     id: "rotate_right"
 
-  # --- ROTATE LEFT (1) ---
-  - platform: event
-    event_type: zha_event
-    event_data:
-      device_id: !input smart_knob
-      params:
-        rotate_type: 1
+  # --- ROTATE LEFT ---
+  - platform: device
+    domain: mqtt
+    device_id: !input smart_knob
+    type: action
+    subtype: rotate_left
     id: "rotate_left"
 
-  # --- SINGLE PRESS (0) ---
-  - platform: event
-    event_type: zha_event
-    event_data:
-      device_id: !input smart_knob
-      params:
-        press_type: 0
+  # --- SINGLE PRESS ---
+  - platform: device
+    domain: mqtt
+    device_id: !input smart_knob
+    type: action
+    subtype: single
     id: "single_press"
 
-  # --- DOUBLE PRESS (1) ---
-  - platform: event
-    event_type: zha_event
-    event_data:
-      device_id: !input smart_knob
-      params:
-        press_type: 1
+  # --- DOUBLE PRESS ---
+  - platform: device
+    domain: mqtt
+    device_id: !input smart_knob
+    type: action
+    subtype: double
     id: "double_press"
 
-  # --- LONG PRESS (2) ---
-  - platform: event
-    event_type: zha_event
-    event_data:
-      device_id: !input smart_knob
-      params:
-        press_type: 2
+  # --- LONG PRESS (HOLD) ---
+  - platform: device
+    domain: mqtt
+    device_id: !input smart_knob
+    type: action
+    subtype: hold
     id: "long_press"
 
 action:
