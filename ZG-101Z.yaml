@@ -32,6 +32,17 @@ blueprint:
           step: 10
           unit_of_measurement: "%"
 
+    min_brightness:
+      name: Minimum Brightness
+      description: Lowest brightness level the light can be dimmed to (%).
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+
     action_single_press:
       name: Single Press
       default: []
@@ -52,8 +63,11 @@ blueprint:
 
 variables:
   step_size: !input step_size
+  min_brightness: !input min_brightness
+  target_light: !input target_light
 
-mode: restart
+mode: queued
+max: 10
 max_exceeded: silent
 
 trigger:
@@ -108,6 +122,7 @@ action:
               entity_id: !input target_light
             data:
               brightness_step_pct: "{{ step_size }}"
+              transition: 0
 
       - conditions:
           - condition: trigger
@@ -117,7 +132,9 @@ action:
             target:
               entity_id: !input target_light
             data:
-              brightness_step_pct: "{{ -step_size }}"
+              brightness_pct: >-
+                {{ [state_attr(target_light, 'brightness') | int(0) / 2.55 - step_size, min_brightness] | max | round(0) }}
+              transition: 0
 
       - conditions:
           - condition: trigger
